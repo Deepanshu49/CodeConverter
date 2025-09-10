@@ -93,7 +93,7 @@
       outputBox.value = "Converting... Please wait ⏳";
 
       try {
-        const response = await fetch("http://localhost:5000/convert", {
+        const response = await fetch("https://codeconverter-j8h5.onrender.com", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code: inputCode, targetLang: language })
@@ -113,5 +113,6 @@
   </script>
   
 </body>
+
 
 </html>
