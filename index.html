@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1e1e1e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: #47495f;
+      padding: 20px;
+      border-radius: 12px;
+      width: 600px;
+      box-shadow: 0 4px 10px rgba(220, 216, 216, 0.1);
+    }
+    textarea {
+      width: 95%;
+      height: 120px;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-family: monospace;
+      resize: vertical;
+    }
+    select, button {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    select {
+      background: #e8eaf6;
+    }
+    .btn-submit {
+      background: #4CAF50;
+      color: white;
+    }
+    .btn-reset {
+      background: #f44336;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Code Converter</h2>
+    
+    <!-- Input box -->
+    <label for="inputCode">Input Code:<br></label><br>
+    <textarea id="inputCode" placeholder="Enter your code here..."></textarea>
+
+    <!-- Controls -->
+    <div>
+      <select id="language">
+        <option value="java">Java</option>
+        <option value="cpp">C++</option>
+        <option value="python">Python</option>
+      </select>
+      <button class="btn-submit" onclick="convertCode()">Submit</button>
+      <button class="btn-reset" onclick="resetPage()">Reset</button><br>
+    </div>
+
+    <!-- Output box -->
+    <label for="outputCode">Output Code:<br></label><br>
+    <textarea id="outputCode" placeholder="Converted code will appear here..." readonly></textarea>
+    <br>
+  <footer style="text-align:center; margin-top:20px; padding:10px; font-size:14px; color:#e1e0e0;">
+  © 2025 Code Converter | Built with ❤️ by Deepanshu Shukla
+</footer>
+  </div>
+
+  <script>
+    async function convertCode() {
+      const inputCode = document.getElementById("inputCode").value;
+      const language = document.getElementById("language").value;
+      const outputBox = document.getElementById("outputCode");
+
+      if (!inputCode.trim()) {
+        alert("Please enter some code!");
+        return;
+      }
+
+      outputBox.value = "Converting... Please wait ⏳";
+
+      try {
+        const response = await fetch("http://localhost:5000/convert", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: inputCode, targetLang: language })
+        });
+
+        const data = await response.json();
+        outputBox.value = data.convertedCode || "⚠️ No output received";
+      } catch (error) {
+        console.error(error);
+        outputBox.value = "❌ Error connecting to server!";
+      }
+    }
+
+    function resetPage() {
+      location.reload();
+    }
+  </script>
+  
+</body>
+
+</html>
