@@ -1,21 +1,20 @@
-const express = require("express");
+onst express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const path = require("path");
 const OpenAI = require("openai");
 require("dotenv").config();
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 app.use(cors());
 
-// Initialize OpenAI client with your API key from .env
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+// Serve frontend files (index.html, css, js)
+app.use(express.static(path.join(__dirname)));
 
-// API route for code conversion
+// API route
 app.post("/convert", async (req, res) => {
   const { code, targetLang } = req.body;
 
@@ -24,27 +23,28 @@ app.post("/convert", async (req, res) => {
   }
 
   try {
-    const response = await openai.chat.completions.create({
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const response = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        {
-          role: "system",
-          content: `You are a strict code converter. Convert the user's code into ${targetLang}. 
-          Do not include explanations, only return the converted ${targetLang} code.`
-        },
+        { role: "system", content:` Convert this code strictly to ${targetLang}. Return only code.` },
         { role: "user", content: code }
       ]
     });
 
-    const converted = response.choices[0].message.content.trim();
-    res.json({ convertedCode: converted });
+    res.json({ convertedCode: response.choices[0].message.content.trim() });
   } catch (error) {
     console.error("❌ Error:", error);
-    res.status(500).json({ error: "Something went wrong while converting code." });
+    res.status(500).json({ error: "Something went wrong" });
   }
+});
+
+// Fallback → for any unknown route, return index.html
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 // Start server
 app.listen(port, () => {
-  console.log(`✅ Server running at http://localhost:${port}`);
+  console.log(`✅ Server running on port ${port}`);
 });
