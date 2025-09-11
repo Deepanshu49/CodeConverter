@@ -1,14 +1,24 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const path = require("path");
 const OpenAI = require("openai");
 require("dotenv").config();
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT||5000;
 
 app.use(bodyParser.json());
 app.use(cors());
+
+//server frontend files
+app.use(express.statics(path.join(_dirname)));
+
+//Home page file
+
+app.get("/",(req,res) => {
+  res.sendFile(path.join(__dirname,"index.html"));
+});
 
 // Initialize OpenAI client with your API key from .env
 const openai = new OpenAI({
@@ -48,3 +58,4 @@ app.post("/convert", async (req, res) => {
 app.listen(port, () => {
   console.log(`✅ Server running at http://localhost:${port}`);
 });
+
