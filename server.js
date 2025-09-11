@@ -1,4 +1,4 @@
-onst express = require("express");
+const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
@@ -48,3 +48,4 @@ app.get("*", (req, res) => {
 app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
 });
+
