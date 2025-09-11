@@ -6,57 +6,44 @@ const OpenAI = require("openai");
 require("dotenv").config();
 
 const app = express();
-const port = process.env.PORT||5000;
+const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 app.use(cors());
 
-//server frontend files
-app.use(express.statics(path.join(__dirname)));
+// ✅ Serve frontend files
+app.use(express.static(path.join(__dirname)));
 
-//Home page file
-
-app.get("/",(req,res) => {
-  res.sendFile(path.join(__dirname,"index.html"));
+// ✅ Homepage route
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// Initialize OpenAI client with your API key from .env
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
-
-// API route for code conversion
+// ✅ API route
 app.post("/convert", async (req, res) => {
-  const { code, targetLang } = req.body;
+    const { code, targetLang } = req.body;
 
-  if (!code || !targetLang) {
-    return res.status(400).json({ error: "Code and target language are required." });
-  }
+    if (!code || !targetLang) {
+        return res.status(400).json({ error: "Code and target language are required." });
+    }
 
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: `You are a strict code converter. Convert the user's code into ${targetLang}. 
-          Do not include explanations, only return the converted ${targetLang} code.`
-        },
-        { role: "user", content: code }
-      ]
-    });
+    try {
+        const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+        const response = await client.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                { role: "system", content: `Convert this code to ${targetLang}. Return only code.` },
+                { role: "user", content: code }
+            ]
+        });
 
-    const converted = response.choices[0].message.content.trim();
-    res.json({ convertedCode: converted });
-  } catch (error) {
-    console.error("❌ Error:", error);
-    res.status(500).json({ error: "Something went wrong while converting code." });
-  }
+        res.json({ convertedCode: response.choices[0].message.content.trim() });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ error: "Something went wrong" });
+    }
 });
 
-// Start server
 app.listen(port, () => {
-  console.log(`✅ Server running at http://localhost:${port}`);
+    console.log(`✅ Server running on port ${port}`);
 });
-
-
