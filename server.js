@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 //server frontend files
-app.use(express.statics(path.join(_dirname)));
+app.use(express.statics(path.join(__dirname)));
 
 //Home page file
 
@@ -58,4 +58,5 @@ app.post("/convert", async (req, res) => {
 app.listen(port, () => {
   console.log(`✅ Server running at http://localhost:${port}`);
 });
+
 
